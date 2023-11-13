@@ -26,7 +26,27 @@ namespace lab04.Controllers
             else
             {
                 return await _shopContext.Employees.ToListAsync();
-              
+            }
+        }
+
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Employee>> GetEmployee(int id)
+        {
+            if (_shopContext.Employees == null)
+            {
+                return NotFound();
+            }
+
+            var employee = await _shopContext.Employees.FindAsync(id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return employee;
             }
         }
 
