@@ -7,9 +7,10 @@ namespace lab04.Models
     {
         public ShopContext(DbContextOptions<ShopContext>options) : base (options)
         {
-
         }
 
         public DbSet<Brand> Brands { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Customer> Customers { get; set; }
     }
 }
