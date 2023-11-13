@@ -27,6 +27,7 @@ namespace lab04.Controllers
             else
             {
                 return await _shopContext.Brands.ToListAsync();
+                //return Ok(brands);
             }
         }
 
@@ -54,8 +55,8 @@ namespace lab04.Controllers
         [HttpPost]
         public async Task<ActionResult<Brand>> PostBrand(Brand brand)
         {
-            _shopContext.Brands.Add(brand); 
-            _shopContext.SaveChangesAsync();
+            _shopContext.Brands.Add(brand);
+            await _shopContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetBrand), new {id = brand.ID}, brand);
         }
