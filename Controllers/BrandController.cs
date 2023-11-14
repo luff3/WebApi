@@ -1,4 +1,6 @@
-﻿using lab04.Models;
+﻿using AutoMapper;
+using lab04.Models;
+using lab04.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +13,12 @@ namespace lab04.Controllers
     public class BrandController : ControllerBase
     {
         private readonly ShopContext _shopContext;
+        private readonly IMapper _mapper;
 
-        public BrandController(ShopContext shopContext)
+        public BrandController(ShopContext shopContext, IMapper mappper)
         {
             _shopContext = shopContext;
+            _mapper = mappper;
         }
 
         [HttpGet]
@@ -26,8 +30,8 @@ namespace lab04.Controllers
             }
             else
             {
-                return await _shopContext.Brands.ToListAsync();
-                //return Ok(brands);
+                //return await _shopContext.Brands.ToListAsync();
+                return Ok(_mapper.Map<IEnumerable<BrandViewModel>>(_shopContext.Brands));
             }
         }
 
@@ -48,44 +52,48 @@ namespace lab04.Controllers
             }
             else
             {
-                return brand;
+                return Ok(_mapper.Map<BrandViewModel>(brand));
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Brand>> PostBrand(Brand brand)
+        public async Task<ActionResult<Brand>> PostBrand([FromBody] BrandViewModel br) 
         {
-            _shopContext.Brands.Add(brand);
-            await _shopContext.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetBrand), new {id = brand.ID}, brand);
+              var brand = _mapper.Map<Brand>(br);
+              _shopContext.Brands.Add(brand);
+              await _shopContext.SaveChangesAsync();
+              return Ok(brand);
+            //return CreatedAtAction(nameof(GetBrand), new {id = brand.ID}, brand);
         }
         [HttpPut]
-        public async Task<IActionResult> PutBrand(int id, Brand brand)
+        public async Task<IActionResult> PutBrand(int id,[FromBody] BrandViewModel br)
         {
-            if(id != brand.ID)
-            {
-                return BadRequest();
-            }
-            _shopContext.Entry(brand).State = EntityState.Modified;
 
-            try
-            {
-                await _shopContext.SaveChangesAsync();
-            }
-            catch(DbUpdateConcurrencyException) 
-            { 
-                if(!BrandAvailable(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            
-            }
-            return Ok();
+            var  brand = await _shopContext.Brands.FindAsync(id);
+
+            if ( brand == null) return NotFound();
+
+            _mapper.Map(br, brand);
+
+           
+             try
+             {
+                 await _shopContext.SaveChangesAsync();
+             }
+             catch(DbUpdateConcurrencyException) 
+             { 
+                 if(!BrandAvailable(id))
+                 {
+                     return NotFound();
+                 }
+                 else
+                 {
+                     throw;
+                 }
+
+             }
+             return Ok(_mapper.Map<BrandViewModel>(brand));
         }
 
         private bool BrandAvailable(int id)

@@ -1,4 +1,5 @@
 using lab04.Models;
+using lab04.Utility.Profile;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container. OUR
 builder.Services.AddDbContext<ShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ShopDb")));
+//Mapper 
+var config = new AutoMapper.MapperConfiguration(c =>
+{
+    c.AddProfile(new ApplicationProfile());
+});
+
+var mapper = config.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 
 builder.Services.AddControllers();
